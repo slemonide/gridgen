@@ -1,8 +1,18 @@
 spawns = {{x=0,y=0,z=0}} -- Possible spawn positions with default one
 
-if minetest.setting_get("spawns") then
-	spawns = minetest.deserialize(minetest.setting_get("spawns"))
+local file = io.open(minetest.get_worldpath().."/spawns.txt", "r")
+if file then
+	spawns = minetest.deserialize(file:read("*all"))
 end
+
+function save_spawns(spawns)
+	local file = io.open(minetest.get_worldpath().."/spawns.txt", "w")
+	if file then
+		file:write(minetest.serialize(spawns))
+		file:close()
+	end
+end
+
 
 local function give_initial_stuff(player)
 	player:get_inventory():add_item('main', 'default:pick_wood')
@@ -13,7 +23,7 @@ local function spawn(player)
 	local choice = math.random(#spawns)
 	local spawn = spawns[choice]
 	table.remove(spawns, choice)
-	minetest.setting_set("spawns", minetest.serialize(spawns))
+	save_spawns(spawns)
 	player:setpos(spawn)
 end
 
