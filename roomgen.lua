@@ -12,7 +12,7 @@ local freebie_blocks = { -- Stuff that fills the room completely
 		"default:jungletree",
 --		"default:jungleleaves",
 		"default:pine_tree",
-		"default:pine_needles",
+--		"default:pine_needles",
 		"default:acacia_tree",
 --		"default:acacia_leaves",
 		"default:stone_with_coal",

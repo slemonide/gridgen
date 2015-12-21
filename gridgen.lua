@@ -39,7 +39,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
 		if math.ceil(ax) == ax or math.ceil(bx) == bx or math.ceil(cx) == cx then
 			data[p_pos] = c_stone
 		elseif math.ceil(az) == az and math.ceil(bz) == bz and math.ceil(cz) == cz
-			and not (x==0 and z==0 and y==2+A) then -- Don't create anything at the default spawn cell
+			and not (x==0 and z==0 and y==A/2-1) then -- Don't create anything at the default spawn cell
 			data[p_pos] = c_center
 		end
 	end
