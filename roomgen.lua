@@ -5,7 +5,7 @@ local freebie_blocks = { -- Stuff that fills the room completely
 		"default:sand",
 		"default:gravel",
 		"default:clay",
-		"default:snowblock",
+--		"default:snowblock",
 		"default:ice",
 		"default:tree",
 --		"default:leaves",
