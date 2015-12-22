@@ -54,7 +54,13 @@ minetest.register_abm({
 		else
 			local random = math.random(4)
 			if random == 1 then -- 50% * 25% nyancat will spawn
-				minetest.set_node(pos, {name = "default:nyancat"})
+				if math.random(2) == 1 then -- another 50%
+					minetest.set_node(pos, {name = "default:nyancat"})
+					for Y=-4,-1 do
+						local pos_n = {x=pos.x,y=pos.y+Y,z=pos.z}
+						minetest.set_node(pos_n, {name = "default:nyancat_rainbow"})
+					end
+				end
 			elseif random == 2 then -- 50% * 25% falling ceiling trap
 				for X=-A/4-1,A/4+1 do
 				for Z=-A/4-1,A/4+1 do
