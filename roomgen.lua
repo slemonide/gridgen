@@ -49,6 +49,7 @@ minetest.register_abm({
 	minetest.remove_node(pos) -- Delete node so rooms won't overgenerate
 	if math.random(2) == 1 then -- 50% of a free room, room with constructions or room with traps
 		if math.random(2) == 1 then -- 50% * 50% free rooms
+			local spawn = {pos.x,pos.y-A/2+3,pos.z}
 			table.insert(spawns, pos)
 			save_spawns(spawns)
 		else
