@@ -1,8 +1,13 @@
+local MINIMUM_SPAWNS = 5
+
 spawns = {{x=0,y=0,z=0}} -- Possible spawn positions with default one
 
 local file = io.open(minetest.get_worldpath().."/spawns.txt", "r")
 if file then
-	spawns = minetest.deserialize(file:read("*all"))
+	local data = minetest.deserialize(file:read("*all"))
+	if #data > MINIMUM_SPAWNS then
+		spawns = data
+	end
 end
 
 function save_spawns(spawns)
@@ -22,7 +27,9 @@ end
 local function spawn(player)
 	local choice = math.random(#spawns)
 	local spawn = spawns[choice]
-	table.remove(spawns, choice)
+	if #spawns > 5 then
+		table.remove(spawns, choice)
+	end
 	save_spawns(spawns)
 	player:setpos(spawn)
 end
