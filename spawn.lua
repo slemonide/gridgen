@@ -34,6 +34,7 @@ minetest.register_on_newplayer(function(player)
 	spawn(player)
 	give_initial_stuff(player)
 end)
+
 minetest.register_on_respawnplayer(function(player)
 	spawn(player)
 	player:get_inventory():set_list("main", {})
