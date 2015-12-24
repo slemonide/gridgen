@@ -5,19 +5,15 @@ spawns = {{x=0,y=0,z=0}} -- Possible spawn positions with default one
 local file = io.open(minetest.get_worldpath().."/spawns.txt", "r")
 if file then
 	local data = minetest.deserialize(file:read("*all"))
+	if not data then
+		return
+	end
 	if #data > MINIMUM_SPAWNS then
 		spawns = data
 	end
+	print("Number of spawn points is " .. #data)
+	file:close()
 end
-
-function save_spawns(spawns)
-	local file = io.open(minetest.get_worldpath().."/spawns.txt", "w")
-	if file then
-		file:write(minetest.serialize(spawns))
-		file:close()
-	end
-end
-
 
 local function give_initial_stuff(player)
 	player:get_inventory():add_item('main', 'default:pick_wood')
