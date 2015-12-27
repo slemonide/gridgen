@@ -37,7 +37,7 @@ end
 
 function gen.heat(x,y,z) -- Creates temperature map (in Kelvins)
 	local heat_due_to_magic = gen.ws(2, 3, (z - 1234*seed_n)/200) + gen.ws(2, 3, (x + 122*seed_n)/200) -- 2 is there so heat is always > 0
-	local temperature = math.floor(6*heat_due_to_magic - y/10 + 280) -- 280 is there to make temperature equal 5°C in the average
+	local temperature = math.floor(6*heat_due_to_magic - y/50 + 280) -- 280 is there to make temperature equal 5°C in the average
 	return temperature
 end
 
@@ -63,7 +63,9 @@ local c_dirt = minetest.get_content_id("default:dirt")
 local c_dirt_with_grass = minetest.get_content_id("default:dirt_with_grass")
 local c_dirt_with_snow = minetest.get_content_id("default:dirt_with_snow")
 local c_sand = minetest.get_content_id("default:sand")
+local c_desert_sand = minetest.get_content_id("default:desert_sand")
 local c_sandstone = minetest.get_content_id("default:sandstone")
+local c_desert_stone = minetest.get_content_id("default:desert_stone")
 
 minetest.register_on_generated(function(minp, maxp, seed)
 
@@ -103,9 +105,9 @@ minetest.register_on_generated(function(minp, maxp, seed)
 						and not (x==0 and z==0 and y==A/2-1) then -- Don't create anything at the default spawn cell
 						data[p_pos] = c_center
 					end
-				elseif land_base < BEACH_HEIGHT and y == land_base then -- Generate beach
+				elseif land_base < BEACH_HEIGHT and y == land_base then -- Generates beaches
 					data[p_pos] = c_sand
-				elseif temperature <= 273 then
+				elseif temperature <= 273 then -- Snow
 					if y > land_base and y <= SEA then -- Generates sea
 						if temperature == 273 and math.random(2) == 1 then
 							data[p_pos] = c_ice
@@ -125,7 +127,17 @@ minetest.register_on_generated(function(minp, maxp, seed)
 							data[p_pos] = c_snow
 						end
 					end
-				elseif temperature > 273 then
+				elseif temperature > 283 then -- Deserts
+					if y > land_base and y <= SEA then -- Generates sea
+						data[p_pos] = c_water
+					elseif y >= land_base and y <= land_base + 2 then
+						data[p_pos] = c_desert_sand
+					elseif y == land_base - 1 then
+						data[p_pos] = c_desert_stone
+					elseif y < land_base - 1 then
+						data[p_pos] = c_stone
+					end
+				elseif temperature > 273 then -- Green
 					if y > land_base and y <= SEA then -- Generates sea
 						data[p_pos] = c_water
 					elseif y == land_base then
