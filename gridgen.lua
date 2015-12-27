@@ -1,5 +1,7 @@
 local SEA = minetest.get_mapgen_params().water_level
 local SURFACE_LEVEL = 0
+local DUNGEON_DEPTH = -30 -- Dungeon depth below surface (not below y=0!)
+local BEACH_HEIGHT = 5 -- Above sea level
 local SEED = minetest.get_mapgen_params().seed
 local seed_n = math.sin(SEED)
 
@@ -33,7 +35,7 @@ function gen.landbase(x,z) -- Creates landscape roughness
 	return land_base
 end
 
-function gen.heat(x,y,z) -- Creates temperature map
+function gen.heat(x,y,z) -- Creates temperature map (in Kelvins)
 	local heat_due_to_magic = gen.ws(2, 3, (z - 1234*seed_n)/200) + gen.ws(2, 3, (x + 122*seed_n)/200) -- 2 is there so heat is always > 0
 	local temperature = math.floor(6*heat_due_to_magic - y/10 + 280) -- 280 is there to make temperature equal 5°C in the average
 	return temperature
@@ -53,11 +55,13 @@ minetest.register_node("gridgen:center", { -- Marks center of the room
 
 local c_stone = minetest.get_content_id("default:stone")
 local c_center = minetest.get_content_id("gridgen:center")
-local c_snow = minetest.get_content_id("default:snowblock")
+local c_snowblock = minetest.get_content_id("default:snowblock")
+local c_snow = minetest.get_content_id("default:snow")
 local c_water = minetest.get_content_id("default:water_source")
 local c_ice = minetest.get_content_id("default:ice")
 local c_dirt = minetest.get_content_id("default:dirt")
 local c_dirt_with_grass = minetest.get_content_id("default:dirt_with_grass")
+local c_dirt_with_snow = minetest.get_content_id("default:dirt_with_snow")
 local c_sand = minetest.get_content_id("default:sand")
 local c_sandstone = minetest.get_content_id("default:sandstone")
 
@@ -74,9 +78,10 @@ minetest.register_on_generated(function(minp, maxp, seed)
 	for x=minp.x,maxp.x do
 		for z=minp.z,maxp.z do
 			local land_base = gen.landbase(x,z)
-			local beach = math.floor(100/97*math.cos((x - z)*10/(100)))
+--			local beach = math.floor(100/97*math.cos((x - z)*10/(100)))
 --			local land_base = math.floor(4*(math.sin(x/60) + math.sin(z/60)) + 280)
 			for y=minp.y,maxp.y do
+				local temperature = gen.heat(x, y, z)
 				local p_pos = area:index(x, y, z)
 
 --				if y >= -1 then break end -- Use to create cross sections (debug)
@@ -91,34 +96,44 @@ minetest.register_on_generated(function(minp, maxp, seed)
 				local bz = x/A
 				local cz = z/A
 
-				if y < land_base - 30 then
+				if y < land_base + DUNGEON_DEPTH then -- Generates dungeons
 					if math.ceil(ax) == ax or math.ceil(bx) == bx or math.ceil(cx) == cx then
 						data[p_pos] = c_stone
 					elseif math.ceil(az) == az and math.ceil(bz) == bz and math.ceil(cz) == cz
 						and not (x==0 and z==0 and y==A/2-1) then -- Don't create anything at the default spawn cell
 						data[p_pos] = c_center
 					end
-				elseif y < land_base - 1 then
-					data[p_pos] = c_stone
-				elseif y == land_base then
-					if y > SEA + 2 then
-						data[p_pos] = c_dirt_with_grass
-					else
-						data[p_pos] = c_sand
-					end
-				elseif y == land_base - 1 then
-					if y > SEA + 2 then
+				elseif land_base < BEACH_HEIGHT and y == land_base then -- Generate beach
+					data[p_pos] = c_sand
+				elseif temperature <= 273 then
+					if y > land_base and y <= SEA then -- Generates sea
+						if temperature == 273 and math.random(2) == 1 then
+							data[p_pos] = c_ice
+						elseif temperature < 273 then
+							data[p_pos] = c_ice
+						end
+					elseif y == land_base then
+						data[p_pos] = c_dirt_with_snow
+					elseif y == land_base - 1 then
 						data[p_pos] = c_dirt
-					else
-						data[p_pos] = c_sandstone
+					elseif y < land_base - 1 then
+						data[p_pos] = c_stone
+					elseif y == land_base + 1 or y == SEA + 1 then
+						if temperature <= 267 then
+							data[p_pos] = c_snowblock
+						elseif temperature < 273 then
+							data[p_pos] = c_snow
+						end
 					end
-				elseif y >= land_base and y <= SEA then -- Generates sea
-					if gen.heat(x, y, z) == 273 and math.random(2) == 1 then
-						data[p_pos] = c_ice
-					elseif gen.heat(x, y, z) < 273 then
-						data[p_pos] = c_ice
-					else
+				elseif temperature > 273 then
+					if y > land_base and y <= SEA then -- Generates sea
 						data[p_pos] = c_water
+					elseif y == land_base then
+						data[p_pos] = c_dirt_with_grass
+					elseif y == land_base - 1 then
+						data[p_pos] = c_dirt
+					elseif y < land_base - 1 then
+						data[p_pos] = c_stone
 					end
 				end
 			end
