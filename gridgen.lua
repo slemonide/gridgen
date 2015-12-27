@@ -37,7 +37,7 @@ end
 
 function gen.heat(x,y,z) -- Creates temperature map (in Kelvins)
 	local heat_due_to_magic = gen.ws(2, 3, (z - 1234*seed_n)/200) + gen.ws(2, 3, (x + 122*seed_n)/200) -- 2 is there so heat is always > 0
-	local temperature = math.floor(6*heat_due_to_magic - y/50 + 280) -- 280 is there to make temperature equal 5°C in the average
+	local temperature = math.floor(6*heat_due_to_magic - y/10 + (x + z)/100 + 280) -- 280 is there to make temperature equal 5°C in the average
 	return temperature
 end
 
