@@ -105,7 +105,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
 						and not (x==0 and z==0 and y==A/2-1) then -- Don't create anything at the default spawn cell
 						data[p_pos] = c_center
 					end
-				elseif land_base < BEACH_HEIGHT and y == land_base then -- Generates beaches
+				elseif land_base < BEACH_HEIGHT and y == land_base then -- Generate beach
 					data[p_pos] = c_sand
 				elseif temperature <= 273 then -- Snow
 					if y > land_base and y <= SEA then -- Generates sea
@@ -130,7 +130,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
 				elseif temperature > 283 then -- Deserts
 					if y > land_base and y <= SEA then -- Generates sea
 						data[p_pos] = c_water
-					elseif y >= land_base and y <= land_base + 2 then
+					elseif y == land_base then
 						data[p_pos] = c_desert_sand
 					elseif y == land_base - 1 then
 						data[p_pos] = c_desert_stone
