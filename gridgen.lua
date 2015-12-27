@@ -13,6 +13,16 @@ function gen.ws(depth, a, x) -- Weierstrass function is used to generate surface
 	return y
 end
 
+function gen.sign(x) -- sign(x) function
+	if x > 0 then
+		return 1
+	elseif x < 0 then
+		return -1
+	else
+		return 0
+	end
+end
+
 function gen.landbase(x,z) -- Creates landscape roughness
 	local land_base = gen.ws(5, 4, (x - 22200*seed_n)/1000)
 	land_base = land_base + gen.ws(5, 5, (z + 55500*seed_n)/1000)
@@ -24,7 +34,7 @@ function gen.landbase(x,z) -- Creates landscape roughness
 end
 
 function gen.heat(x,y,z) -- Creates temperature map
-	local heat_due_to_magic = math.sin(x/60) + math.sin(z/60) -- 2 is there so heat is always > 0
+	local heat_due_to_magic = gen.ws(2, 3, (z - 1234*seed_n)/200) + gen.ws(2, 3, (x + 122*seed_n)/200) -- 2 is there so heat is always > 0
 	local temperature = math.floor(6*heat_due_to_magic - y/10 + 280) -- 280 is there to make temperature equal 5°C in the average
 	return temperature
 end
