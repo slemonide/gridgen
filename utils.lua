@@ -75,6 +75,16 @@ minetest.register_chatcommand('explore_end',{
     end
 })
 
+local monitor_mod_name = "hud_monitor" -- Load following modules only if hud_monitor is installed
+local modnames = minetest.get_modnames()
+local is_monitor = false
+for i, name in ipairs(modnames) do
+	if monitor_mod_name == name then
+		is_monitor = true
+	end
+end
+
+if is_monitor then
 minetest.register_globalstep(function(dtime)
 	local players  = minetest.get_connected_players()
 	for i,player in ipairs(players) do
@@ -96,8 +106,8 @@ minetest.register_globalstep(function(dtime)
 					local x = player_pos.x + explore_steps_width * dx
 					local z = player_pos.z + explore_steps_width * dz
 					local y = gen.landbase(x,z) + 20
-					if minetest.get_mapgen_params().water_level > y then
-						t = minetest.get_mapgen_params().water_level
+					if minetest.get_mapgen_params().water_level > y then -- Don't drown player under water
+						y = minetest.get_mapgen_params().water_level
 					end
 					pos = {x = x, y = y, z = z}
 					-- player:setpos(pos)
@@ -109,3 +119,4 @@ minetest.register_globalstep(function(dtime)
 		end
 	end
 end)
+end

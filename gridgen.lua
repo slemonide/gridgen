@@ -26,18 +26,21 @@ function gen.sign(x) -- sign(x) function
 end
 
 function gen.landbase(x,z) -- Creates landscape roughness
-	local land_base = gen.ws(5, 4, (x - 22200*seed_n)/1000)
-	land_base = land_base + gen.ws(5, 5, (z + 55500*seed_n)/1000)
-	land_base = land_base + gen.ws(5, 4, (z + x + 36734*seed_n)/2000)
-	land_base = land_base + gen.ws(5, 2, (z - x - 68933*seed_n)/2000)
-	land_base = land_base + gen.ws(5, 2, (x - z + 33356*seed_n)/2000)
+	local land_base = gen.ws(5, 4, (x - 22200*seed_n)/500)
+	land_base = land_base + gen.ws(5, 5, (z + 55500*seed_n)/500)
+--	land_base = land_base + gen.ws(5, 4, (z + x + 36734*seed_n)/500)
+	land_base = land_base + gen.ws(5, 2, (z - x - 68933*seed_n)/1000)
+	land_base = land_base + gen.ws(5, 2, (x - z + 33356*seed_n)/1000)
 	land_base = math.floor(50*land_base + SURFACE_LEVEL)
 	return land_base
 end
 
 function gen.heat(x,y,z) -- Creates temperature map (in Kelvins)
-	local heat_due_to_magic = gen.ws(2, 3, (z - 1234*seed_n)/200) + gen.ws(2, 3, (x + 122*seed_n)/200) -- 2 is there so heat is always > 0
-	local temperature = math.floor(6*heat_due_to_magic - y/10 + (x + z)/100 + 280) -- 280 is there to make temperature equal 5°C in the average
+	local heat_due_to_magic = math.sin(x/100) + math.sin(z/100)
+	local temperature = math.floor(3*heat_due_to_magic - y/10 + x/400 + 278)
+	if temperature < 0 then -- Can't be below absolute zero
+		temperature = 0
+	end
 	return temperature
 end
 
@@ -58,6 +61,7 @@ local c_center = minetest.get_content_id("gridgen:center")
 local c_snowblock = minetest.get_content_id("default:snowblock")
 local c_snow = minetest.get_content_id("default:snow")
 local c_water = minetest.get_content_id("default:water_source")
+local c_river = minetest.get_content_id("default:river_water_source")
 local c_ice = minetest.get_content_id("default:ice")
 local c_dirt = minetest.get_content_id("default:dirt")
 local c_dirt_with_grass = minetest.get_content_id("default:dirt_with_grass")
@@ -80,6 +84,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
 	for x=minp.x,maxp.x do
 		for z=minp.z,maxp.z do
 			local land_base = gen.landbase(x,z)
+--			local river_base = gen.landbase(x*0.9,z*1.1)
 --			local beach = math.floor(100/97*math.cos((x - z)*10/(100)))
 --			local land_base = math.floor(4*(math.sin(x/60) + math.sin(z/60)) + 280)
 			for y=minp.y,maxp.y do
@@ -105,6 +110,10 @@ minetest.register_on_generated(function(minp, maxp, seed)
 						and not (x==0 and z==0 and y==A/2-1) then -- Don't create anything at the default spawn cell
 						data[p_pos] = c_center
 					end
+--[[
+				elseif river_base < y and y < land_base then -- Generate rivers and ponds
+					data[p_pos] = c_river
+--]]
 				elseif land_base < BEACH_HEIGHT and y == land_base then -- Generate beach
 					data[p_pos] = c_sand
 				elseif temperature <= 273 then -- Snow
