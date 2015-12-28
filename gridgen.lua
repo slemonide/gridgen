@@ -137,14 +137,15 @@ minetest.register_on_generated(function(minp, maxp, seed)
 						end
 					end
 				elseif temperature > 283 then -- Deserts
-					if y > land_base and y <= SEA then -- Generates sea
-						data[p_pos] = c_water
-					elseif y >= land_base and y <= 3*(math.sin(x/5)+1) + land_base then
+					if y >= land_base and y <= 3*(math.sin(x/5)+1) + land_base then
 						data[p_pos] = c_desert_sand
 					elseif y == land_base - 1 then
 						data[p_pos] = c_desert_stone
 					elseif y < land_base - 1 then
 						data[p_pos] = c_stone
+					elseif y > land_base and y <= SEA then -- Generates sea
+						data[p_pos] = c_water
+					else
 					end
 				elseif temperature > 273 then -- Green
 					if y > land_base and y <= SEA then -- Generates sea
