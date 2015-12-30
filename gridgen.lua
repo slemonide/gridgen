@@ -28,23 +28,13 @@ function gen.sign(x) -- sign(x) function
 	end
 end
 
-local MG_LIMIT = 100
---[[
-function gen.farscale(scale, x, y, z)
-	return (1 + (1 - (MAP_GENERATION_LIMIT * 3 - (abs(x) + abs(y) + abs(z))  / (MAP_GENERATION_LIMIT * 3)) * (scale - 1))
-end
---]]
-function gen.farscale(x, z)
-	return (abs(x) + abs(z))/100
-end
-
 function gen.landbase(x,z) -- Creates landscape roughness
 	local land_base = gen.ws(4, 3, (x + sin(z) - pi/360*seed_n)/500)
 	land_base = land_base + gen.ws(4, 3, (z + sin(x)*land_base + pi/360*seed_n)/500)
 --	land_base = land_base + gen.ws(5, 4, (z + x + 36734*seed_n)/500)
 	land_base = land_base*abs(gen.ws(3, 3, (x - z*land_base + sin(z) - 7*pi/360*seed_n)/600))
 	land_base = land_base*abs(gen.ws(3, 3, (z + x + land_base*sin(x) + 7*pi/360*seed_n)/600))
-	land_base = math.floor(50*land_base + SURFACE_LEVEL)
+	land_base = math.floor(50*land_base + SURFACE_LEVEL - 8) -- -8 there fixes rivers
 	return land_base
 end
 
