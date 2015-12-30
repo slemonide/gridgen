@@ -6,6 +6,9 @@ local SEED = minetest.get_mapgen_params().seed
 local seed_n = math.sin(SEED)
 
 gen = {}
+local abs = math.abs
+local pi = math.pi
+local sin = math.sin
 
 function gen.ws(depth, a, x) -- Weierstrass function is used to generate surface
 	local y = 0
@@ -25,19 +28,29 @@ function gen.sign(x) -- sign(x) function
 	end
 end
 
+local MG_LIMIT = 100
+--[[
+function gen.farscale(scale, x, y, z)
+	return (1 + (1 - (MAP_GENERATION_LIMIT * 3 - (abs(x) + abs(y) + abs(z))  / (MAP_GENERATION_LIMIT * 3)) * (scale - 1))
+end
+--]]
+function gen.farscale(x, z)
+	return (abs(x) + abs(z))/100
+end
+
 function gen.landbase(x,z) -- Creates landscape roughness
-	local land_base = gen.ws(5, 4, (x - 22200*seed_n)/500)
-	land_base = land_base + gen.ws(5, 5, (z + 55500*seed_n)/500)
+	local land_base = gen.ws(4, 3, (x - pi/360*seed_n)/500)
+	land_base = land_base + gen.ws(4, 3, (z + pi/360*seed_n)/500)
 --	land_base = land_base + gen.ws(5, 4, (z + x + 36734*seed_n)/500)
-	land_base = land_base + gen.ws(5, 2, (z - x - 68933*seed_n)/1000)
-	land_base = land_base + gen.ws(5, 2, (x - z + 33356*seed_n)/1000)
+	land_base = land_base*abs(gen.ws(3, 3, (x - z*land_base + sin(z) - 7*pi/360*seed_n)/100))
+	land_base = land_base*abs(gen.ws(3, 3, (z + x + land_base*sin(x) + 7*pi/360*seed_n)/100))
 	land_base = math.floor(50*land_base + SURFACE_LEVEL)
 	return land_base
 end
 
 function gen.heat(x,y,z) -- Creates temperature map (in Kelvins)
-	local heat_due_to_magic = math.sin(x/100) + math.sin(z/100)
-	local temperature = math.floor(3*heat_due_to_magic - y/10 + x/400 + 278)
+	local heat_due_to_magic = gen.ws(2, 3.2, (x + 13*pi/360*seed_n)/1000) + gen.ws(2, 3.2, (z - 13*pi/360*seed_n)/1000)
+	local temperature = math.floor(3*heat_due_to_magic - y/10 + x/400 + 279)
 	if temperature < 0 then -- Can't be below absolute zero
 		temperature = 0
 	end
