@@ -39,11 +39,11 @@ function gen.farscale(x, z)
 end
 
 function gen.landbase(x,z) -- Creates landscape roughness
-	local land_base = gen.ws(4, 3, (x - pi/360*seed_n)/500)
-	land_base = land_base + gen.ws(4, 3, (z + pi/360*seed_n)/500)
+	local land_base = gen.ws(4, 3, (x + sin(z) - pi/360*seed_n)/500)
+	land_base = land_base + gen.ws(4, 3, (z + sin(x)*land_base + pi/360*seed_n)/500)
 --	land_base = land_base + gen.ws(5, 4, (z + x + 36734*seed_n)/500)
-	land_base = land_base*abs(gen.ws(3, 3, (x - z*land_base + sin(z) - 7*pi/360*seed_n)/100))
-	land_base = land_base*abs(gen.ws(3, 3, (z + x + land_base*sin(x) + 7*pi/360*seed_n)/100))
+	land_base = land_base*abs(gen.ws(3, 3, (x - z*land_base + sin(z) - 7*pi/360*seed_n)/600))
+	land_base = land_base*abs(gen.ws(3, 3, (z + x + land_base*sin(x) + 7*pi/360*seed_n)/600))
 	land_base = math.floor(50*land_base + SURFACE_LEVEL)
 	return land_base
 end
@@ -86,9 +86,9 @@ local c_desert_stone = minetest.get_content_id("default:desert_stone")
 
 minetest.register_on_generated(function(minp, maxp, seed)
 
-	local t1 = os.clock()
-	local geninfo = "[mg] generates..."
-	minetest.chat_send_all(geninfo)
+--	local t1 = os.clock()
+--	local geninfo = "[mg] generates..."
+--	minetest.chat_send_all(geninfo)
 
 	local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
 	local data = vm:get_data()
@@ -127,7 +127,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
 				elseif river_base < y and y < land_base then -- Generate rivers and ponds
 					data[p_pos] = c_river
 --]]
-				elseif land_base < BEACH_HEIGHT and y == land_base then -- Generate beach
+				elseif y == land_base and land_base < BEACH_HEIGHT then -- Generate beach
 					data[p_pos] = c_sand
 				elseif temperature <= 273 then -- Snow
 					if y > land_base and y <= SEA then -- Generates sea
@@ -135,6 +135,8 @@ minetest.register_on_generated(function(minp, maxp, seed)
 							data[p_pos] = c_ice
 						elseif temperature < 273 then
 							data[p_pos] = c_ice
+						else
+							data[p_pos] = c_water
 						end
 					elseif y == land_base then
 						data[p_pos] = c_dirt_with_snow
@@ -150,7 +152,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
 						end
 					end
 				elseif temperature > 283 then -- Deserts
-					if y >= land_base and y <= 3*(math.sin(x/5)+1) + land_base then
+					if y == land_base then
 						data[p_pos] = c_desert_sand
 					elseif y == land_base - 1 then
 						data[p_pos] = c_desert_stone
@@ -175,8 +177,8 @@ minetest.register_on_generated(function(minp, maxp, seed)
 		end
 	end
 
-	local t2 = os.clock()
-	local calcdelay = string.format("%.2fs", t2 - t1)
+--	local t2 = os.clock()
+--	local calcdelay = string.format("%.2fs", t2 - t1)
 
 	vm:set_data(data)
 	vm:set_lighting({day=0, night=0})
@@ -184,8 +186,8 @@ minetest.register_on_generated(function(minp, maxp, seed)
 	vm:update_liquids()
 	vm:write_to_map()
 
-	local t3 = os.clock()
-	local geninfo = "[mg] done after ca.: "..calcdelay.." + "..string.format("%.2fs", t3 - t2).." = "..string.format("%.2fs", t3 - t1)
-	print(geninfo)
-	minetest.chat_send_all(geninfo)
+--	local t3 = os.clock()
+--	local geninfo = "[mg] done after ca.: "..calcdelay.." + "..string.format("%.2fs", t3 - t2).." = "..string.format("%.2fs", t3 - t1)
+--	print(geninfo)
+--	minetest.chat_send_all(geninfo)
 end)

@@ -16,7 +16,16 @@ minetest.register_chatcommand("killme", { -- For those who are stuck
 	end,
 })
 
+local monitor_mod_name = "hud_monitor" -- Load following modules only if hud_monitor is installed
+local modnames = minetest.get_modnames()
+local is_monitor = false
+for i, name in ipairs(modnames) do
+	if monitor_mod_name == name then
+		is_monitor = true
+	end
+end
 
+if is_monitor then
 function print_player_elevation()
 	for _,player in ipairs(minetest.get_connected_players()) do
 		local pos = player:getpos()
@@ -44,7 +53,7 @@ function print_player_elevation()
 	minetest.after(0.5, print_player_elevation)
 end
 minetest.after(0.5, print_player_elevation)
-
+end
 
 -- Map explorer (thanks to Echo for original code)
 local explore_players = {}
@@ -75,16 +84,6 @@ minetest.register_chatcommand('explore_end',{
     end
 })
 
-local monitor_mod_name = "hud_monitor" -- Load following modules only if hud_monitor is installed
-local modnames = minetest.get_modnames()
-local is_monitor = false
-for i, name in ipairs(modnames) do
-	if monitor_mod_name == name then
-		is_monitor = true
-	end
-end
-
-if is_monitor then
 minetest.register_globalstep(function(dtime)
 	local players  = minetest.get_connected_players()
 	for i,player in ipairs(players) do
@@ -119,4 +118,3 @@ minetest.register_globalstep(function(dtime)
 		end
 	end
 end)
-end
