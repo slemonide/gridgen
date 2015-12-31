@@ -16,16 +16,7 @@ minetest.register_chatcommand("killme", { -- For those who are stuck
 	end,
 })
 
-local monitor_mod_name = "hud_monitor" -- Load following modules only if hud_monitor is installed
-local modnames = minetest.get_modnames()
-local is_monitor = false
-for i, name in ipairs(modnames) do
-	if monitor_mod_name == name then
-		is_monitor = true
-	end
-end
-
-if is_monitor then
+if minetest.get_modpath("hud_monitor") then
 function print_player_elevation()
 	for _,player in ipairs(minetest.get_connected_players()) do
 		local pos = player:getpos()

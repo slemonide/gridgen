@@ -9,6 +9,7 @@ gen = {}
 local abs = math.abs
 local pi = math.pi
 local sin = math.sin
+local distance = math.hypot
 
 function gen.ws(depth, a, x) -- Weierstrass function is used to generate surface
 	local y = 0
@@ -18,23 +19,17 @@ function gen.ws(depth, a, x) -- Weierstrass function is used to generate surface
 	return y
 end
 
-function gen.sign(x) -- sign(x) function
-	if x > 0 then
-		return 1
-	elseif x < 0 then
-		return -1
-	else
-		return 0
-	end
-end
-
 function gen.landbase(x,z) -- Creates landscape roughness
-	local land_base = gen.ws(4, 3, (x + sin(z) - pi/360*seed_n)/500)
-	land_base = land_base + gen.ws(4, 3, (z + sin(x)*land_base + pi/360*seed_n)/500)
---	land_base = land_base + gen.ws(5, 4, (z + x + 36734*seed_n)/500)
-	land_base = land_base*abs(gen.ws(3, 3, (x - z*land_base + sin(z) - 7*pi/360*seed_n)/600))
-	land_base = land_base*abs(gen.ws(3, 3, (z + x + land_base*sin(x) + 7*pi/360*seed_n)/600))
-	land_base = math.floor(50*land_base + SURFACE_LEVEL - 8) -- -8 there fixes rivers
+	local x = x/30
+	local z = z/30
+	local xa = gen.ws(10, 3, (x + z - pi/360*seed_n)/500)
+--	xa = xa*abs(gen.ws(10, 3, (z + distance(x/100,z/100) - 59*pi/360*seed_n)/600))
+	local za = gen.ws(10, 3, (z + pi/360*seed_n)/500)
+--	za = za*abs(gen.ws(10, 3, (x + distance(x/100,z/100) + 59*pi/360*seed_n)/600))
+	local land_base = xa + za
+	land_base = land_base*abs(gen.ws(10, 3, (x - z*land_base + sin(z/10) + distance(x/100,z/100) - 7*pi/360*seed_n)/600))
+	land_base = land_base*abs(gen.ws(10, 3, (z + x + land_base*sin(x/10) + sin(distance(x/100,z/100)) + 7*pi/360*seed_n)/600))
+	land_base = math.floor(50*land_base*30 + SURFACE_LEVEL - 8)
 	return land_base
 end
 
@@ -68,6 +63,7 @@ local c_river = minetest.get_content_id("default:river_water_source")
 local c_ice = minetest.get_content_id("default:ice")
 local c_dirt = minetest.get_content_id("default:dirt")
 local c_dirt_with_grass = minetest.get_content_id("default:dirt_with_grass")
+local c_dirt_with_dry_grass = minetest.get_content_id("default:dirt_with_dry_grass")
 local c_dirt_with_snow = minetest.get_content_id("default:dirt_with_snow")
 local c_sand = minetest.get_content_id("default:sand")
 local c_desert_sand = minetest.get_content_id("default:desert_sand")
@@ -76,7 +72,7 @@ local c_desert_stone = minetest.get_content_id("default:desert_stone")
 
 minetest.register_on_generated(function(minp, maxp, seed)
 
---	local t1 = os.clock()
+	local t1 = os.clock()
 --	local geninfo = "[mg] generates..."
 --	minetest.chat_send_all(geninfo)
 
@@ -156,7 +152,11 @@ minetest.register_on_generated(function(minp, maxp, seed)
 					if y > land_base and y <= SEA then -- Generates sea
 						data[p_pos] = c_water
 					elseif y == land_base then
-						data[p_pos] = c_dirt_with_grass
+						if temperature < 275 or temperature > 280 then -- Below 2°C grass will dry
+							data[p_pos] = c_dirt_with_dry_grass
+						else
+							data[p_pos] = c_dirt_with_grass
+						end
 					elseif y == land_base - 1 then
 						data[p_pos] = c_dirt
 					elseif y < land_base - 1 then
@@ -167,8 +167,8 @@ minetest.register_on_generated(function(minp, maxp, seed)
 		end
 	end
 
---	local t2 = os.clock()
---	local calcdelay = string.format("%.2fs", t2 - t1)
+	local t2 = os.clock()
+	local calcdelay = string.format("%.2fs", t2 - t1)
 
 	vm:set_data(data)
 	vm:set_lighting({day=0, night=0})
@@ -176,8 +176,8 @@ minetest.register_on_generated(function(minp, maxp, seed)
 	vm:update_liquids()
 	vm:write_to_map()
 
---	local t3 = os.clock()
---	local geninfo = "[mg] done after ca.: "..calcdelay.." + "..string.format("%.2fs", t3 - t2).." = "..string.format("%.2fs", t3 - t1)
---	print(geninfo)
+	local t3 = os.clock()
+	local geninfo = "[mg] done after ca.: "..calcdelay.." + "..string.format("%.2fs", t3 - t2).." = "..string.format("%.2fs", t3 - t1)
+	print(geninfo)
 --	minetest.chat_send_all(geninfo)
 end)
