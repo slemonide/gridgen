@@ -2,6 +2,7 @@ local SEA = minetest.get_mapgen_params().water_level
 local SURFACE_LEVEL = 0
 local DUNGEON_DEPTH = -30 -- Dungeon depth below surface (not below y=0!)
 local BEACH_HEIGHT = 5 -- Above sea level
+local CRESTS_HEIGHT = 400 -- Distance from y=0 at which crests and valleys start
 local SEED = minetest.get_mapgen_params().seed
 local seed_n = math.sin(SEED)
 
@@ -10,8 +11,6 @@ local abs = math.abs
 local pi = math.pi
 local sin = math.sin
 local distance = math.hypot
-
-local crests = 300
 
 function gen.ws(depth, a, x) -- Weierstrass function is used to generate surface
 	local y = 0
@@ -38,11 +37,11 @@ function gen.landbase(x,z) -- Creates landscape roughness
 --]]
 	land_base = math.floor(50*land_base*3 + SURFACE_LEVEL - 8)
 
-	if abs(land_base) >= crests then
+	if abs(land_base) >= CRESTS_HEIGHT then
 		if land_base > 0 then
-			land_base = 2*land_base - crests -- create crests and valleys
+			land_base = 2*land_base - CRESTS_HEIGHT -- create crests and valleys
 		else
-			land_base = 2*land_base + crests
+			land_base = 2*land_base + CRESTS_HEIGHT
 		end
 	end
 
@@ -74,7 +73,7 @@ function gen.get_node(x,y,z,land_base,temperature)
 	local bz = x/A
 	local cz = z/A
 
-	if y < land_base + DUNGEON_DEPTH and abs(y) < crests + DUNGEON_DEPTH then -- Generates dungeons
+	if y < land_base + DUNGEON_DEPTH and abs(y) < CRESTS_HEIGHT + DUNGEON_DEPTH then -- Generates dungeons
 		if math.ceil(ax) == ax or math.ceil(bx) == bx or math.ceil(cx) == cx then
 			node = "default:stone"
 		elseif math.ceil(az) == az and math.ceil(bz) == bz and math.ceil(cz) == cz

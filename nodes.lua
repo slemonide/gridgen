@@ -1,11 +1,16 @@
 minetest.register_abm({
 	nodenames = {"group:suffocate"},
 	interval = 1,
-	chance = 2,
+	chance = 1,
 	action = function(pos, node, active_object_count, active_object_count_wider)
 		local all_objects = minetest.get_objects_inside_radius(pos, 1)
 		for _,obj in ipairs(all_objects) do
 			obj:set_hp(obj:get_hp() - 4)
+			local message = "You are suffocating!"
+			if obj:is_player() then
+				local name = obj:get_player_name()
+				minetest.chat_send_player(name, message)
+			end
 		end
 	end,
 })
@@ -47,6 +52,13 @@ minetest.register_abm({
 -- Chlorine gas
 minetest.register_node("gridgen:chlorine_gas", {
 	description = "Chlorine Gas",
-	tiles = {"default_dirt.png".."^[brighten"},
+	alpha = 100,
+	tiles = {"default_cobble.png".."^[makealpha:128,128,128".."^[brighten"},
 	groups = {cracky=3, stone=1, suffocate=1},
+})
+
+minetest.register_node("gridgen:chlorine_gas_percipitate", {
+	description = "Chlorine Gas Percipirtate",
+	tiles = {"default_dirtn.png".."^[brighten"},
+	groups = {cracky=3, stone=1},
 })
