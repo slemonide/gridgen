@@ -73,7 +73,7 @@ function gen.get_node(x,y,z,land_base,temperature)
 	local bz = x/A
 	local cz = z/A
 
-	if y < land_base + DUNGEON_DEPTH and abs(y) < CRESTS_HEIGHT + DUNGEON_DEPTH then -- Generates dungeons
+	if y < land_base + DUNGEON_DEPTH and y < CRESTS_HEIGHT + DUNGEON_DEPTH then -- Generates dungeons
 		if math.ceil(ax) == ax or math.ceil(bx) == bx or math.ceil(cx) == cx then
 			node = "default:stone"
 		elseif math.ceil(az) == az and math.ceil(bz) == bz and math.ceil(cz) == cz
