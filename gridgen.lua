@@ -26,15 +26,6 @@ function gen.landbase(x,z) -- Creates landscape roughness
 	local land_base = gen.ws(4, 3, (x + z - pi/360*seed_n)/500)
 	land_base = land_base + gen.ws(4, 3, (z + pi/360*seed_n)/500)
 	land_base = land_base*(gen.ws(4, 3, (x - z*land_base - 7*pi/360*seed_n)/600) + gen.ws(4, 3, (z + x + 7*pi/360*seed_n)/600))
---	land_base = land_base*abs(gen.ws(4, 3, (x - z*land_base - 7*pi/360*seed_n)/600))
---	land_base = land_base*abs(gen.ws(4, 3, (z + x + 7*pi/360*seed_n)/600))
---[[
-	local xa = gen.ws(4, 3, (x + z - pi/360*seed_n)/500)
-	local za = gen.ws(4, 3, (z + pi/360*seed_n)/500)
-	local land_base = xa + za
-	land_base = land_base*abs(gen.ws(4, 3, (x - z*land_base + sin(z/10) + distance(x/100,z/100) - 7*pi/360*seed_n)/600))
-	land_base = land_base*abs(gen.ws(4, 3, (z + x + land_base*sin(x/10) + sin(distance(x/100,z/100)) + 7*pi/360*seed_n)/600))
---]]
 	land_base = math.floor(50*land_base*3 + SURFACE_LEVEL - 8)
 
 	if abs(land_base) >= CRESTS_HEIGHT then
